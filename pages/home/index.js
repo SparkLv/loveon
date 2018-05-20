@@ -14,6 +14,13 @@ export default class App extends Component {
             source={active.focused ? require('../../assets/ahome.png') : require('../../assets/home.png')}
         />
     }
+    constructor(props) {
+        super(props);
+        this.state = {
+        }
+    }
+    componentDidMount() {
+    }
     render() {
         return (
             <View>
@@ -21,8 +28,7 @@ export default class App extends Component {
                 <View style={styles.punch}>
                     <Text></Text>
                 </View>
-            </View>
-        );
+            </View>)
     }
 }
 

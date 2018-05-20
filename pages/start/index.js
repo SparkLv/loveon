@@ -19,7 +19,7 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: 3,
+            loading: 5,
             dateNum: 100,
             dateIndex: 0,
             nowDate: ''
@@ -34,10 +34,14 @@ export default class App extends Component {
             dateIndex: days,
             nowDate
         })
-        this.handleL = setInterval(() => { this.state.loading !== 1 ? this.setState({ loading: this.state.loading - 1 }) : this.props.navigation.navigate('Nav') }, 1000);
-    }
-    componentWillUnmount() {
-        clearInterval(this.handleL);
+        this.handleL = setInterval(() => {
+            if (this.state.loading) {
+                this.setState({ loading: this.state.loading - 1 })
+            } else {
+                this.props.close();
+                clearInterval(this.handleL);
+            }
+        }, 1000);
     }
     dateDiffer(date1, date2) {
         const s1 = new Date(date1.replace(/-/g, "/")).getTime();
@@ -55,7 +59,7 @@ export default class App extends Component {
             <View style={styles.container}>
                 <TouchableOpacity
                     style={styles.skipBtn}
-                    onPress={() => this.props.navigation.navigate('Nav')}
+                    onPress={() => this.props.close()}
                 >
                     <Text style={[styles.center, styles.skipBtnText]}>{`跳过(${this.state.loading.toString()})`}</Text>
                 </TouchableOpacity>
@@ -71,7 +75,6 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: '#fff'

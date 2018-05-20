@@ -47,18 +47,30 @@ const Nav = createBottomTabNavigator({
   Mine
 }, {
     tabBarOptions: {
-      activeBackgroundColor: '#fff',
       showLabel: false,
+      style: {
+        backgroundColor: '#fff'
+      }
     }
   })
 
-const App = createStackNavigator({
-  Start: { screen: Start },
-  Nav: { screen: Nav },
-}, {
-    navigationOptions: {
-      header: null
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      type: 0
     }
-  });
-
-export default App
+  }
+  closeStart() {
+    this.setState({
+      type: 1
+    })
+  }
+  render() {
+    return (
+      this.state.type ?
+        <Nav /> :
+        <Start close={this.closeStart.bind(this)}></Start>
+    )
+  }
+}
