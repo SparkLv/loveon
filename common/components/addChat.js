@@ -24,7 +24,7 @@ export default class Chat extends Component {
     render() {
         return (
             <View>
-                <HeadBar bgColor="#3d82cb" back={true} title="Chat" back={<TouchableOpacity onPress={() => this.back.call(this)}><View style={styles.backBtn}></View></TouchableOpacity>} />
+                <HeadBar bgColor="#3d82cb" title="Chat" back={<TouchableOpacity onPress={() => this.back.call(this)}><View style={styles.backBtn}></View></TouchableOpacity>} />
                 <Text>sss</Text>
             </View>
         );
