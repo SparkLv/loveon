@@ -17,11 +17,9 @@ export default class Cover extends Component {
     this.timer = setInterval(this.reduceTime.bind(this), 1000);
     navigator.geolocation.getCurrentPosition(function(info) {
       const url = `https://free-api.heweather.com/s6/weather/now?location=${info.coords.latitude},${info.coords.longitude}&key=1f588e1a434d45e981f079c3e7790ed1`;
-      // fetch(url,{method:'get'}).then(res=>{
-      //   alert(JSON.stringify(res._bodylnit));
-      // })
       axios.get(url).then(res => {
-        alert(JSON.stringify(res));
+        const {basic:{location},now:{cond_txt}} = res.data.HeWeather6[0];
+        alert(`${location},${cond_txt}`);
       });
     });
   }
