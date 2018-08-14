@@ -5,6 +5,7 @@ import { createStackNavigator, createBottomTabNavigator } from "react-navigation
 import Cover from "./cover";
 
 import Home from "./home";
+import NewsDetail from "./home/components/detail";
 
 import Info from "./info";
 
@@ -39,15 +40,15 @@ const MainStack = createStackNavigator(
     home: {
       screen: Home
     },
-    detail: {
-      screen: DetailsScreen
+    newsDetail: {
+      screen: NewsDetail
     }
   },
   {
     initialRouteName: "home",
     navigationOptions: {
       headerStyle: {
-        backgroundColor: "#6b52ae"
+        backgroundColor: "#1b82d1"
       },
       headerTintColor: "#fff",
       headerTitleStyle: {}
@@ -57,7 +58,7 @@ const MainStack = createStackNavigator(
 
 const BottomTab = createBottomTabNavigator(
   {
-    home: Home,
+    home: MainStack,
     info: Info,
     add: Add,
     fav: Fav,
