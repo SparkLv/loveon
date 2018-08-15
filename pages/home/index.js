@@ -96,8 +96,8 @@ export default class Home extends Component {
           {this.state.preWeather ? (
             <Image style={styles.locIcon} source={require("../../assets/icons/warning.png")} />
           ) : (
-            <Image style={styles.locIcon} source={require("../../assets/icons/success.png")} />
-          )}
+              <Image style={styles.locIcon} source={require("../../assets/icons/success.png")} />
+            )}
           <Text>{this.state.preWeather ? `注意！${this.state.preWeather.time},会有${this.state.preWeather.text},做好准备` : "今天天气不错，随便浪！"}</Text>
         </View>
         <FlatList
