@@ -1,16 +1,23 @@
 import React, { Component } from "react";
 
-import { StyleSheet, View, Text, TouchableOpacity, ImageBackground } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, ImageBackground, AsyncStorage } from "react-native";
 
 export default class Cover extends Component {
   constructor() {
     super();
     this.state = {
       time: 5,
+      userInfo: null
     };
   }
   componentDidMount() {
     this.timer = setInterval(this.reduceTime.bind(this), 1000);
+  }
+  async getUserInfo() {
+    const userInfo = await AsyncStorage.getItem('userInfo');
+    this.setState({
+      userInfo
+    })
   }
   reduceTime() {
     if (this.state.time === 1) {
@@ -23,7 +30,8 @@ export default class Cover extends Component {
   }
   gotoHome() {
     clearInterval(this.timer);
-    this.props.navigation.replace("Main");
+    const url = this.state.userInfo ? 'Main' : 'Login';
+    this.props.navigation.replace(url);
   }
   render() {
     return (

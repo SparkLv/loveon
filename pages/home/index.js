@@ -1,6 +1,7 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button, Image, TouchableOpacity, FlatList, WebView } from "react-native";
+import { StyleSheet, View, Text, Button, Image, TouchableOpacity, FlatList, WebView, StatusBar } from "react-native";
 import md5 from "md5";
+import { SafeAreaView } from 'react-navigation';
 
 import Com from "../../common/common";
 
@@ -82,7 +83,6 @@ export default class Home extends Component {
     fetch(url, { method: "get" })
       .then(res => res.json())
       .then(data => {
-        console.log(data.data.news);
         this.setState({
           news: data.data.news
         });
@@ -91,7 +91,8 @@ export default class Home extends Component {
   _keyExtractor = (item, index) => index.toString();
   render() {
     return (
-      <View>
+      <SafeAreaView>
+        <StatusBar backgroundColor={this.props.navigation.state.routeName == 'cover' ? "#fff" : "#1b82d1"} />
         <View style={styles.preWeather}>
           {this.state.preWeather ? (
             <Image style={styles.locIcon} source={require("../../assets/icons/warning.png")} />
@@ -116,7 +117,7 @@ export default class Home extends Component {
             );
           }}
         />
-      </View>
+      </SafeAreaView>
     );
   }
 }
