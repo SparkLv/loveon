@@ -17,11 +17,11 @@ export default class Cover extends Component {
     const userInfo = await AsyncStorage.getItem('userInfo');
     this.setState({
       userInfo
-    })
+    }, this.gotoHome)
   }
   reduceTime() {
     if (this.state.time === 1) {
-      this.gotoHome();
+      this.getUserInfo();
     } else {
       this.setState({
         time: this.state.time - 1
@@ -36,7 +36,7 @@ export default class Cover extends Component {
   render() {
     return (
       <ImageBackground source={require("../assets/img/cover.jpg")} style={styles.coverImg}>
-        <TouchableOpacity style={styles.skipBox} onPress={this.gotoHome.bind(this)}>
+        <TouchableOpacity style={styles.skipBox} onPress={this.getUserInfo.bind(this)}>
           <Text style={styles.skipText}>{`跳过(${this.state.time})`}</Text>
         </TouchableOpacity>
       </ImageBackground>

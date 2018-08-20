@@ -67,7 +67,7 @@ export default class Login extends Component {
             });
     }
     async setUserInfo(info) {
-        await AsyncStorage.setItem('userInfo1', JSON.stringify(info));
+        await AsyncStorage.setItem('userInfo', JSON.stringify(info));
         this.props.navigation.replace('Main');
     }
     esInput() {

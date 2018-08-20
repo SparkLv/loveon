@@ -1,16 +1,21 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button, Image, TouchableOpacity, FlatList, WebView, StatusBar } from "react-native";
+import { StyleSheet, View, Text, Button, Image, TextInput, TouchableOpacity, FlatList, WebView, Clipboard, StatusBar, AsyncStorage } from "react-native";
 import md5 from "md5";
 import { SafeAreaView } from 'react-navigation';
+import Modalbox from 'react-native-modalbox';
+import ScrollableTabView from 'react-native-scrollable-tab-view';
+import Toast from 'react-native-root-toast';
 
 import Com from "../../common/common";
 
 import NowWeatherHead from "./components/nowWeatherHead";
+import AddPartner from './components/addPartner'
 
 export default class Home extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      headerLeft: <NowWeatherHead loc={navigation.getParam("loc")} weather={navigation.getParam("weather")} loadLoc={navigation.getParam("getLoc")} />
+      headerLeft: <NowWeatherHead loc={navigation.getParam("loc")} weather={navigation.getParam("weather")} loadLoc={navigation.getParam("getLoc")} />,
+      headerRight: <AddPartner userInfo={navigation.getParam("userInfo")} pData={navigation.getParam('pData')} showBox={navigation.getParam("showAddBox")} />
     };
   };
   constructor() {
@@ -19,15 +24,51 @@ export default class Home extends Component {
       loc: false,
       weather: {},
       preWeather: false,
-      news: []
+      news: [],
+      userInfo: {},
+      pData: null,
+      addBoxVis: false,
+      code: ''
     };
   }
   componentDidMount() {
+    this.getUserInfo();
     this.getLoc();
     this.getNews();
     this.props.navigation.setParams({
-      getLoc: this.getLoc.bind(this)
+      getLoc: this.getLoc.bind(this),
+      showAddBox: this.showAddBox.bind(this)
     });
+  }
+  async getUserInfo() {
+    const info = await AsyncStorage.getItem('userInfo');
+    const userInfo = JSON.parse(info);
+    this.setState({
+      userInfo
+    })
+    this.props.navigation.setParams({
+      userInfo
+    });
+    if (userInfo.pid) {
+      this.getPidInfo(userInfo.pid);
+    }
+  }
+  getPidInfo(pid) {
+    const url = `http://10.0.52.22:2420/loveon/user/getById/${pid}`;
+    fetch(url, { method: "get" })
+      .then(res => res.json())
+      .then(data => {
+        this.setState({
+          pData: data
+        })
+        this.props.navigation.setParams({
+          pData: data
+        });
+        this.savePdata(data);
+      });
+  }
+  savePdata(data) {
+    AsyncStorage.setItem('pUserInfo', JSON.stringify(data));
   }
   getLoc() {
     navigator.geolocation.getCurrentPosition(info => {
@@ -89,6 +130,57 @@ export default class Home extends Component {
       });
   }
   _keyExtractor = (item, index) => index.toString();
+  hideAddBox() {
+    this.setState({
+      addBoxVis: false,
+      code: ''
+    })
+  }
+  showAddBox() {
+    this.setState({
+      addBoxVis: true
+    })
+  }
+  async copyKey() {
+    await Clipboard.setString(this.state.userInfo.code.toString());
+    this.toast('密钥已复制到剪切板')
+
+  }
+  toast(message) {
+    Toast.show(message, {
+      duration: 2000,
+      position: -80,
+      shadow: true,
+      animation: true,
+      hideOnPress: true,
+    });
+  }
+  inputCode(val) {
+    this.setState({
+      code: val
+    })
+  }
+  conLover() {
+    fetch('http://10.0.52.22:2420/loveon/user/connect', {
+      method: "post", headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: this.state.userInfo.id,
+        code: this.state.code
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.code == 1) {
+          this.toast('配对成功，请重新登陆');
+          this.props.navigation.replace('Login');
+        }
+        else {
+          this.toast(data.message);
+        }
+      });
+  }
   render() {
     return (
       <SafeAreaView>
@@ -117,6 +209,39 @@ export default class Home extends Component {
             );
           }}
         />
+        <Modalbox
+          isOpen={this.state.addBoxVis}
+          onClosed={this.hideAddBox.bind(this)}
+          position="center"
+          backButtonClose={true}
+          swipeToClose={false}
+          style={{ height: 220, width: '85%' }}
+        >
+          <ScrollableTabView>
+            <View tabLabel="输入密钥" style={{ flex: 1, position: "relative" }}>
+              <TextInput onChangeText={this.inputCode.bind(this)} value={this.state.code} style={{ width: '80%', textAlign: 'center', marginTop: 30, marginLeft: '10%' }} />
+              <View style={{ flexDirection: 'row', position: "absolute", bottom: 0, borderTopColor: '#aaa', borderTopWidth: 1 }}>
+                <TouchableOpacity onPress={this.conLover.bind(this)} style={{ flex: 1, height: 40 }}>
+                  <Text style={{ textAlign: 'center', color: '#000', lineHeight: 40, borderRightWidth: 1, borderRightColor: '#aaa' }}>确定</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.hideAddBox.bind(this)} style={{ flex: 1, height: 40 }}>
+                  <Text style={{ textAlign: 'center', color: '#000', lineHeight: 40 }}>取消</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View tabLabel="获取密钥" style={{ flex: 1, position: "relative" }}>
+              <Text style={{ textAlign: 'center', fontSize: 24, letterSpacing: 10, marginTop: 50, color: 'navy' }}>{this.state.userInfo.code}</Text>
+              <View style={{ flexDirection: 'row', position: "absolute", bottom: 0, borderTopColor: '#aaa', borderTopWidth: 1 }}>
+                <TouchableOpacity onPress={this.copyKey.bind(this)} style={{ flex: 1, height: 40 }}>
+                  <Text style={{ textAlign: 'center', color: '#000', lineHeight: 40, borderRightWidth: 1, borderRightColor: '#aaa' }}>复制</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={this.hideAddBox.bind(this)} style={{ flex: 1, height: 40 }}>
+                  <Text style={{ textAlign: 'center', color: '#000', lineHeight: 40 }}>取消</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollableTabView>
+        </Modalbox>
       </SafeAreaView>
     );
   }

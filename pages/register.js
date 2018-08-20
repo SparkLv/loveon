@@ -165,7 +165,7 @@ export default class Register extends Component {
   toast(message) {
     Toast.show(message, {
       duration: 2000,
-      position: -50,
+      position: -80,
       shadow: true,
       animation: true,
       hideOnPress: true,

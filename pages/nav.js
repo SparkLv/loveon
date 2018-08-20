@@ -9,6 +9,7 @@ import Home from "./home";
 import NewsDetail from "./home/components/detail";
 
 import Info from "./info";
+import Chat from './info/chat'
 
 import Add from "./add";
 
@@ -47,6 +48,15 @@ const BottomTab = createBottomTabNavigator(
   },
   {
     navigationOptions: ({ navigation }) => ({
+      tabBarOnPress: (navigation1) => {
+        const { routeName } = navigation.state;
+        if (routeName == 'info') {
+          navigation1.navigation.push('Chat')
+        }
+        else {
+          navigation1.navigation.navigate(routeName);
+        }
+      },
       tabBarIcon: ({ focused, tintColor }) => {
         const { routeName } = navigation.state;
         let Img = null;
@@ -87,7 +97,8 @@ const RootStack = createStackNavigator(
     Register,
     Main: {
       screen: BottomTab
-    }
+    },
+    Chat
   },
   {
     mode: "card",
