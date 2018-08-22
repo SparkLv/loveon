@@ -14,6 +14,8 @@ import Chat from './info/chat'
 import Add from "./add";
 
 import Fav from "./fav";
+import FavPub from './fav/favPub'
+import FavLocation from './fav/location'
 
 import More from "./more";
 
@@ -38,12 +40,36 @@ const MainStack = createStackNavigator(
   }
 );
 
+const FavStack = createStackNavigator(
+  {
+    fav: {
+      screen: Fav
+    },
+    favPub: {
+      screen: FavPub
+    },
+    FavLocation: {
+      screen: FavLocation
+    }
+  },
+  {
+    initialRouteName: "fav",
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: "#1b82d1"
+      },
+      headerTintColor: "#fff",
+      headerTitleStyle: {}
+    }
+  }
+);
+
 const BottomTab = createBottomTabNavigator(
   {
     home: MainStack,
     info: Info,
-    add: Add,
-    fav: Fav,
+    // add: Add,
+    fav: FavStack,
     more: More
   },
   {

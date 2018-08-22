@@ -43,7 +43,7 @@ export default class Info extends Component {
         })
     }
     socketInit() {
-        this.socket = io(`ws://10.0.52.22:2500?id=${this.state.userInfo.id}&pid=${this.state.userInfo.pid}`);
+        this.socket = io(`ws://10.0.52.22:2422?id=${this.state.userInfo.id}&pid=${this.state.userInfo.pid}`);
         this.socket.on('message', (val) => {
             this.setState({
                 mes: val.reverse()
@@ -111,24 +111,31 @@ export default class Info extends Component {
                     </TouchableOpacity>
                     <Text style={{ color: '#fff', fontSize: 20 }}>{this.state.pData ? this.state.pData.name : ''}</Text>
                 </View>
-                <FlatList
-                    style={{ width: '100%', marginBottom: 50 }}
-                    ref={(list) => { this._list = list }}
-                    data={this.state.mes}
-                    keyExtractor={this._keyExtractor}
-                    onContentSizeChange={this.toBottom.bind(this)}
-                    onLayout={this.toBottom.bind(this)}
-                    extraData={this.state}
-                    renderItem={this._renderItem}
-                    refreshing={this.state.refreshLoading}
-                    onRefresh={this.getHistory.bind(this)}
-                />
+                {this.state.userInfo.pid ? (
+                    <FlatList
+                        style={{ width: '100%', marginBottom: 50 }}
+                        ref={(list) => { this._list = list }}
+                        data={this.state.mes}
+                        keyExtractor={this._keyExtractor}
+                        onContentSizeChange={this.toBottom.bind(this)}
+                        onLayout={this.toBottom.bind(this)}
+                        extraData={this.state}
+                        renderItem={this._renderItem}
+                        refreshing={this.state.refreshLoading}
+                        onRefresh={this.getHistory.bind(this)}
+                    />
+                ) : (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <Icon name="speaker-notes-off" size={40} color="#333" />
+                            <Text>暂无另一半，快去寻找另一半吧</Text>
+                        </View>
+                    )}
                 <View style={{ width: '100%', flexDirection: 'row', justifyContent: "space-around", position: "absolute", bottom: 0, alignItems: 'center', height: 50, paddingLeft: 10, borderTopWidth: 1, borderTopColor: '#eee', backgroundColor: '#e7e8e9' }}>
                     <Image source={{ uri: this.state.userInfo.headImg }} style={{ width: 40, height: 40, borderRadius: 20 }} />
                     <TextInput multiline onChangeText={this.inputText.bind(this)} value={this.state.text} style={{ borderBottomWidth: 0, marginLeft: 10, marginTop: 5, width: 200, textAlignVertical: 'top' }} placeholder="Add Message" />
-                    <TouchableOpacity onPress={this.sendMsg.bind(this)} disabled={!this.state.text.length}>
+                    <TouchableOpacity onPress={this.sendMsg.bind(this)} disabled={(!this.state.text.length) || !this.state.userInfo.pid}>
                         <View style={{ width: 50, height: 40 }}>
-                            <Text style={{ color: this.state.text.length ? "#1b82d1" : '#c6ddeb', lineHeight: 40 }}>send</Text>
+                            <Text style={{ color: this.state.text.length && this.state.userInfo.pid ? "#1b82d1" : '#c6ddeb', lineHeight: 40 }}>send</Text>
                         </View>
                     </TouchableOpacity>
                 </View>

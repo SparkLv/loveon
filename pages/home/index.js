@@ -52,9 +52,12 @@ export default class Home extends Component {
     if (userInfo.pid) {
       this.getPidInfo(userInfo.pid);
     }
+    else {
+      AsyncStorage.removeItem('pUserInfo');
+    }
   }
   getPidInfo(pid) {
-    const url = `http://10.0.52.22:2420/loveon/user/getById/${pid}`;
+    const url = `http://10.0.52.22:2421/loveon/user/getById/${pid}`;
     fetch(url, { method: "get" })
       .then(res => res.json())
       .then(data => {
@@ -161,7 +164,7 @@ export default class Home extends Component {
     })
   }
   conLover() {
-    fetch('http://10.0.52.22:2420/loveon/user/connect', {
+    fetch('http://10.0.52.22:2421/loveon/user/connect', {
       method: "post", headers: {
         "Content-Type": "application/json"
       },
@@ -219,7 +222,7 @@ export default class Home extends Component {
         >
           <ScrollableTabView>
             <View tabLabel="输入密钥" style={{ flex: 1, position: "relative" }}>
-              <TextInput onChangeText={this.inputCode.bind(this)} value={this.state.code} style={{ width: '80%', textAlign: 'center', marginTop: 30, marginLeft: '10%' }} />
+              <TextInput onChangeText={this.inputCode.bind(this)} placeholder="输入另一半密钥" underlineColorAndroid="transparent" value={this.state.code} style={{ width: '80%', textAlign: 'center', marginTop: 30, marginLeft: '10%', padding: 0 }} />
               <View style={{ flexDirection: 'row', position: "absolute", bottom: 0, borderTopColor: '#aaa', borderTopWidth: 1 }}>
                 <TouchableOpacity onPress={this.conLover.bind(this)} style={{ flex: 1, height: 40 }}>
                   <Text style={{ textAlign: 'center', color: '#000', lineHeight: 40, borderRightWidth: 1, borderRightColor: '#aaa' }}>确定</Text>

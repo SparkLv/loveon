@@ -73,7 +73,7 @@ export default class Register extends Component {
       this.setState({
         loadingReg: true
       })
-      fetch('http://10.0.52.22:2420/loveon/user/register', {
+      fetch('http://10.0.52.22:2421/loveon/user/register', {
         method: "post", headers: {
           "Content-Type": "application/json"
         },
@@ -133,7 +133,7 @@ export default class Register extends Component {
     this.setState({
       loadingImg: true
     })
-    fetch('http://10.0.52.22:2420/loveon/upload', { method: "post", body })
+    fetch('http://10.0.52.22:2421/loveon/upload', { method: "post", body })
       .then(res => res.json())
       .then(data => {
         this.hideSelPickerModal();

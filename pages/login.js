@@ -48,7 +48,7 @@ export default class Login extends Component {
         this.setState({
             loading: true
         })
-        fetch('http://10.0.52.22:2420/loveon/user/login', {
+        fetch('http://10.0.52.22:2421/loveon/user/login', {
             method: "post", headers: {
                 "Content-Type": "application/json"
             },
