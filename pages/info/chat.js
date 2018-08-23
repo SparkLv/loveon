@@ -51,7 +51,7 @@ export default class Info extends Component {
         })
         this.socket.on('sendResult', (data) => {
             if (data.code == 1) {
-                const obj = { id: Math.floor(10000 * Math.random()), sid: this.state.userInfo.id, text: this.state.text }
+                const obj = data.data;
                 this.setState({
                     mes: this.state.mes.concat(obj),
                     text: ''
