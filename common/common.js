@@ -1,6 +1,5 @@
-
 class Com {
-
+    
 }
 
 const common = new Com

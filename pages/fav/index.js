@@ -1,49 +1,47 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button, Image, AsyncStorage, FlatList, Dimensions, TextInput, Modal, TouchableOpacity, TouchableWithoutFeedback } from "react-native";
+import { View, Text, FlatList, Dimensions, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ImageViewer from 'react-native-image-zoom-viewer';
+import Icon2 from 'react-native-vector-icons/MaterialIcons';
+import store from '../../store'
+import Ajax from '../../common/ajax'
+import FavBox from './components/favBox'
+import ImgDetail from './components/imgDetail'
 
 export default class Fav extends Component {
   static navigationOptions = ({ navigation }) => {
     return {
-      headerRight: (
+      title: '动态',
+      headerTitleStyle: {
+        fontSize: 16
+      },
+      headerRight: navigation.getParam('pid') ? (
         <TouchableOpacity onPress={() => { navigation.navigate('favPub') }} style={{ marginRight: 5 }} >
           <Icon name="plus" size={30} color="#fff" />
-        </TouchableOpacity>
-      )
+        </TouchableOpacity>) : null
+
     };
   };
   constructor() {
     super();
     this.state = {
       trends: [],
-      userInfo: {},
-      pData: {},
+      userInfo: store.getState().userInfo,
+      pData: store.getState().pUserInfo,
       width: 0,
-      ImgDetailVis: false,
+      imgDetailVis: false,
       openImg: 0,
       openImgArr: []
     }
   }
   componentWillMount() {
-    this.getUserInfo();
-    const { height, width } = Dimensions.get('window');
-    this.setState({
-      width
-    })
+    const { id, pid } = this.state.userInfo;
+    const { width } = Dimensions.get('window');
+    Ajax.getInitTrends(id, pid, this.makeTrends.bind(this), (err) => { })
+    this.setState({ width })
   }
-  async getUserInfo() {
-    const userInfo = await AsyncStorage.getItem('userInfo');
-    const obj = JSON.parse(userInfo)
-    this.getInit(obj.id, obj.pid)
-    this.setState({
-      userInfo: obj
-    }, this.getPuserInfo.bind(this))
-  }
-  async getPuserInfo() {
-    const pUserInfo = await AsyncStorage.getItem('pUserInfo');
-    this.setState({
-      pData: JSON.parse(pUserInfo)
+  componentDidMount() {
+    this.props.navigation.setParams({
+      pid: this.state.userInfo.pid
     })
   }
   showImgDetail(arr, index) {
@@ -52,87 +50,39 @@ export default class Fav extends Component {
       openImg: index
     }, () => {
       this.setState({
-        ImgDetailVis: true
+        imgDetailVis: true
       })
     })
   }
   hideImgDetail() {
     this.setState({
-      ImgDetailVis: false
+      imgDetailVis: false
     })
-  }
-  getInit(id, pid) {
-    fetch(`http://10.0.52.22:2421/loveon/getInit/${id}/${pid}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.code == 1) {
-          const arr = JSON.parse(JSON.stringify(data.data));
-          const arr1 = arr.map(item => {
-            item.imgArr = item.img ? this.imgFormat(item.img) : [];
-            return item
-          })
-          this.setState({
-            trends: arr1
-          })
-        }
-      });
   }
   updataTrends() {
-    fetch(`http://10.0.52.22:2421/loveon/getUpdate`, {
-      method: "post", headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        id: this.state.userInfo.id,
-        pid: this.state.userInfo.pid,
-        lid: this.state.trends[this.state.trends.length - 1].id
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.code == 1) {
-          const arr = JSON.parse(JSON.stringify(data.data));
-          const arr1 = arr.map(item => {
-            item.imgArr = item.img ? this.imgFormat(item.img) : [];
-            return item
-          })
-          console.log(arr1);
-          this.setState({
-            trends: this.state.trends.concat(arr1)
-          })
-        }
-      });
+    const { id, pid } = this.state.userInfo;
+    const body = {
+      id, pid,
+      lid: this.state.trends[this.state.trends.length - 1].id
+    }
+    Ajax.updataTrends(body, this.makeTrends.bind(this), (err) => { })
   }
-  imgFormat(str) {
-    return str.split(',')
+  makeTrends(data) {
+    const arr = JSON.parse(JSON.stringify(data));
+    const arr1 = arr.map(item => {
+      item.imgArr = item.img ? item.img.split(',') : [];
+      return item
+    })
+    this.setState({
+      trends: this.state.trends.concat(arr1)
+    })
   }
   _keyExtractor = (item, index) => index.toString();
   _renderItem = ({ item }) => {
-    return (
-      <View style={{ flexDirection: "row", paddingTop: 10, paddingBottom: 10, borderBottomColor: '#ccc', borderBottomWidth: 1 }}>
-        <Image source={{ uri: item.sid == this.state.pData.id ? this.state.pData.headImg : this.state.userInfo.headImg }} style={{ width: 50, height: 50, marginRight: 10 }} />
-        <View style={{ paddingTop: 10 }}>
-          <Text style={{ fontSize: 16, color: '#4285f4', marginBottom: 10 }}>{item.sid == this.state.pData.id ? this.state.pData.name : this.state.userInfo.name}</Text>
-          <Text style={{ fontSize: 16, color: '#000' }}>{item.text}</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", width: this.state.width - 70 }}>
-            {item.imgArr.map((url, index) => {
-              return (
-                <TouchableWithoutFeedback key={index} onPress={this.showImgDetail.bind(this, item.imgArr, index)}>
-                  <View style={{ marginRight: 5, marginBottom: 5 }}>
-                    <Image source={{ uri: url }} style={{ width: 80, height: 80 }} />
-                  </View>
-                </TouchableWithoutFeedback>
-              )
-            })}
-          </View>
-          <Text style={{ fontSize: 12 }}>{item.loc}</Text>
-          <Text style={{ fontSize: 12 }}>{item.stime.split('.')[0].replace('T', ' ')}</Text>
-        </View>
-      </View>
-    )
+    return <FavBox item={item} userData={this.state.userInfo} pData={this.state.pData} width={this.state.width} showImgDetail={this.showImgDetail.bind(this)} />
   }
   render() {
-    return (
+    return this.state.userInfo.pid ? (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
         <FlatList
           style={{ width: '95%', marginBottom: 10 }}
@@ -143,26 +93,13 @@ export default class Fav extends Component {
           onEndReached={this.updataTrends.bind(this)}
           onEndReachedThreshold={0.5}
         />
-        <Modal
-          visible={this.state.ImgDetailVis}
-          transparent={true}
-          onRequestClose={this.hideImgDetail.bind(this)}
-          onDismiss={this.hideImgDetail.bind(this)}
-        >
-          <ImageViewer renderHeader={(index) => {
-            return (
-              <View style={{ flexDirection: "row", width: '100%', height: 50, justifyContent: "space-between", alignItems: "center", padding: 5 }}>
-                <TouchableWithoutFeedback onPress={this.hideImgDetail.bind(this)}>
-                  <View style={{ width: 25, height: 25 }}>
-                    <Icon name="arrow-left" size={25} color="#fff" />
-                  </View>
-                </TouchableWithoutFeedback>
-              </View>
-            )
-          }} imageUrls={this.state.openImgArr.map(item => { return { url: item } })} index={this.state.openImg} renderIndicator={() => null
-          } />
-        </Modal>
+        <ImgDetail hideImgDetail={this.hideImgDetail.bind(this)} imgDetailVis={this.state.imgDetailVis} openImg={this.state.openImg} openImgArr={this.state.openImgArr} />
       </View>
-    );
+    ) : (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }} >
+          <Icon2 name="speaker-notes-off" size={40} color="#333" />
+          <Text>暂无另一半，快去寻找另一半吧</Text>
+        </View >
+      )
   }
 }

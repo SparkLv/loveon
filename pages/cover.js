@@ -1,42 +1,62 @@
 import React, { Component } from "react";
 
-import { StyleSheet, View, Text, TouchableOpacity, ImageBackground, AsyncStorage } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, ImageBackground, AsyncStorage, AppState } from "react-native";
+
+import store from '../store';
 
 export default class Cover extends Component {
   constructor() {
     super();
     this.state = {
-      time: 5,
-      userInfo: null
+      time: 5
     };
+  }
+  componentWillMount() {
+
   }
   componentDidMount() {
     this.timer = setInterval(this.reduceTime.bind(this), 1000);
   }
-  async getUserInfo() {
+  async closeCover() {
     const userInfo = await AsyncStorage.getItem('userInfo');
-    this.setState({
-      userInfo
-    }, this.gotoHome)
+    const userInfoObj = JSON.parse(userInfo);
+    if (userInfo) {
+      store.dispatch({ type: "USER_INFO", data: userInfoObj });
+      if (userInfo.pid) {
+        this.getPidInfo(userInfoObj.pid)
+      } else {
+        this.closeRun('Main');
+      }
+    } else {
+      this.closeRun('Login')
+    }
+  }
+  getPidInfo(pid) {
+    const url = `http://10.0.52.22:2421/loveon/user/getById/${pid}`;
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        store.dispatch({ type: "PUSER_INFO", data });
+        this.closeRun('Main')
+      });
   }
   reduceTime() {
     if (this.state.time === 1) {
-      this.getUserInfo();
+      this.closeCover();
     } else {
       this.setState({
         time: this.state.time - 1
       });
     }
   }
-  gotoHome() {
+  closeRun(url) {
     clearInterval(this.timer);
-    const url = this.state.userInfo ? 'Main' : 'Login';
     this.props.navigation.replace(url);
   }
   render() {
     return (
-      <ImageBackground source={require("../assets/img/cover.jpg")} style={styles.coverImg}>
-        <TouchableOpacity style={styles.skipBox} onPress={this.getUserInfo.bind(this)}>
+      <ImageBackground source={require("../assets/img/cover.png")} style={styles.coverImg}>
+        <TouchableOpacity style={styles.skipBox} onPress={this.closeCover.bind(this)}>
           <Text style={styles.skipText}>{`跳过(${this.state.time})`}</Text>
         </TouchableOpacity>
       </ImageBackground>
@@ -57,12 +77,12 @@ const styles = StyleSheet.create({
     height: 30,
     borderStyle: "solid",
     borderWidth: 1.5,
-    borderColor: "#333",
+    borderColor: "#fff",
     borderRadius: 5,
     marginRight: 15,
     marginTop: 15
   },
   skipText: {
-    color: "#333"
+    color: "#fff"
   }
 });
