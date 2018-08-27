@@ -1,10 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button, Image, AsyncStorage, FlatList, Dimensions, ActivityIndicator, TextInput, TouchableWithoutFeedback, Modal, TouchableOpacity } from "react-native";
+import { View, Text, Image, AsyncStorage, ActivityIndicator, TextInput, TouchableWithoutFeedback, Modal, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Modalbox from 'react-native-modalbox';
 import ImagePicker from 'react-native-image-crop-picker';
 import Toast from 'react-native-root-toast';
 import ImageViewer from 'react-native-image-zoom-viewer';
+
+import Ajax from '../../common/ajax'
 
 export default class favPub extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -107,51 +109,44 @@ export default class favPub extends Component {
     uploadImg(photo) {
         var body = new FormData();
         body.append('file', photo);
-        fetch('http://10.0.52.22:2421/loveon/upload', { method: "post", body })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code == '1') {
-                    this.setState({
-                        nowCount: this.state.nowCount + 1
-                    }, () => {
-                        if (this.state.count == this.state.nowCount) {
-                            this.submitText()
-                        }
-                    })
-                } else {
-                    this.toast('图片上传失败请重试');
-                    this.setState({
-                        pubLoading: false
-                    })
+        Ajax.uploadImg(body, () => {
+            this.setState({
+                nowCount: this.state.nowCount + 1
+            }, () => {
+                if (this.state.count == this.state.nowCount) {
+                    this.submitText()
                 }
-            });
-    }
-    submitText() {
-        fetch('http://10.0.52.22:2421/loveon/add', {
-            method: "post", headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                text: this.state.text,
-                img: this.state.urls,
-                sid: this.state.userInfo.id,
-                pid: this.state.userInfo.pid,
-                loc: this.state.locText
+            })
+        }, () => {
+            this.toast('图片上传失败请重试');
+            this.setState({
+                pubLoading: false
             })
         })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code == '1') {
-                    this.toast('发布成功');
-                } else {
-                    this.toast('发布失败');
-                }
-                this.setState({
-                    pubLoading: false
-                }, () => {
-                    this.props.navigation.replace('fav');
-                })
-            });
+    }
+    submitText() {
+        const obj = {
+            text: this.state.text,
+            img: this.state.urls,
+            sid: this.state.userInfo.id,
+            pid: this.state.userInfo.pid,
+            loc: this.state.locText
+        }
+        Ajax.addFav(obj, () => {
+            this.toast('发布成功');
+            this.setState({
+                pubLoading: false
+            }, () => {
+                this.props.navigation.replace('fav');
+            })
+        }, () => {
+            this.toast('发布失败');
+            this.setState({
+                pubLoading: false
+            }, () => {
+                this.props.navigation.replace('fav');
+            })
+        })
     }
     showSelPickerModal() {
         this.setState({

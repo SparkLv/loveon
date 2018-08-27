@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button, Image, TextInput, TouchableOpacity, FlatList, WebView, Clipboard, StatusBar, AsyncStorage } from "react-native";
+import { StyleSheet, View, Text, Button, Image, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback, FlatList, WebView, Clipboard, StatusBar, AsyncStorage } from "react-native";
 import md5 from "md5";
 import Modalbox from 'react-native-modalbox';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
@@ -16,10 +16,11 @@ import { NotificationsAndroid } from 'react-native-notifications';
 import BackgroundTask from 'react-native-background-task'
 
 BackgroundTask.define(() => {
+  console.log('back')
   setInterval(() => {
     NotificationsAndroid.localNotification({
-      title: this.state.pData.name,
-      body: data.data.text
+      title: 'fsdafsda',
+      body: 'faslfjas;jf;'
     });
   }, 4000)
 })
@@ -41,11 +42,12 @@ export default class Home extends Component {
       userInfo: {},
       pData: null,
       addBoxVis: false,
-      code: ''
+      code: '',
+      keyboardVis: false
     };
   }
   componentDidMount() {
-    BackgroundTask.schedule()
+    // BackgroundTask.schedule()
     this.getUserInfo();
     this.getLoc();
     this.getNews();
@@ -53,6 +55,23 @@ export default class Home extends Component {
       getLoc: this.getLoc.bind(this),
       showAddBox: this.showAddBox.bind(this)
     });
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
+  }
+  componentWillUnmount() {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
+  }
+
+  _keyboardDidShow() {
+    this.setState({
+      keyboardVis: true
+    })
+  }
+  _keyboardDidHide() {
+    this.setState({
+      keyboardVis: false
+    })
   }
   async getUserInfo() {
     const info = await AsyncStorage.getItem('userInfo');
@@ -173,8 +192,9 @@ export default class Home extends Component {
     });
   }
   inputCode(val) {
+    const value = val.length > 7 ? this.state.code : val
     this.setState({
-      code: val
+      code: value
     })
   }
   conLover() {
@@ -197,6 +217,12 @@ export default class Home extends Component {
           this.toast(data.message);
         }
       });
+  }
+  clickCodeInput() {
+    if (!this.state.keyboardVis) {
+      this.codeInput.blur();
+      setTimeout(() => { this.codeInput.focus() }, 100)
+    }
   }
   render() {
     return (
@@ -232,11 +258,22 @@ export default class Home extends Component {
           position="center"
           backButtonClose={true}
           swipeToClose={false}
-          style={{ height: 220, width: '85%' }}
+          style={{ height: 220, width: 300 }}
         >
           <ScrollableTabView>
             <View tabLabel="输入密钥" style={{ flex: 1, position: "relative" }}>
-              <TextInput onChangeText={this.inputCode.bind(this)} placeholder="输入另一半密钥" underlineColorAndroid="transparent" value={this.state.code} style={{ width: '80%', textAlign: 'center', marginTop: 30, marginLeft: '10%', padding: 0 }} />
+              <TextInput ref={input => { this.codeInput = input }} onChangeText={this.inputCode.bind(this)} underlineColorAndroid="transparent" value={this.state.code} style={{ width: 0, opacity: 0 }} />
+              <View style={{ flexDirection: "row", zIndex: 10, position: "absolute", top: 30, height: 30, width: 240, left: 20 }}>
+                {[0, 1, 2, 3, 4, 5, 6].map(item => {
+                  return (
+                    <TouchableWithoutFeedback key={item} onPress={this.clickCodeInput.bind(this)}>
+                      <View style={{ height: 30, width: 30, borderBottomColor: '#333', borderBottomWidth: 1, marginLeft: 5 }}>
+                        <Text style={{ fontSize: 20, textAlign: "center" }}>{this.state.code.split('')[item]}</Text>
+                      </View>
+                    </TouchableWithoutFeedback>
+                  )
+                })}
+              </View>
               <View style={{ flexDirection: 'row', position: "absolute", bottom: 0, borderTopColor: '#aaa', borderTopWidth: 1 }}>
                 <TouchableOpacity onPress={this.conLover.bind(this)} style={{ flex: 1, height: 40 }}>
                   <Text style={{ textAlign: 'center', color: '#000', lineHeight: 40, borderRightWidth: 1, borderRightColor: '#aaa' }}>确定</Text>

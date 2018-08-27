@@ -85,7 +85,7 @@ export default class Fav extends Component {
     return this.state.userInfo.pid ? (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
         <FlatList
-          style={{ width: '95%', marginBottom: 10 }}
+          style={{ width: '100%', marginBottom: 10, paddingLeft: 10, paddingRight: 10 }}
           data={this.state.trends}
           keyExtractor={this._keyExtractor}
           extraData={this.state}

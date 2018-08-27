@@ -11,9 +11,6 @@ export default class Cover extends Component {
       time: 5
     };
   }
-  componentWillMount() {
-
-  }
   componentDidMount() {
     this.timer = setInterval(this.reduceTime.bind(this), 1000);
   }
@@ -22,7 +19,7 @@ export default class Cover extends Component {
     const userInfoObj = JSON.parse(userInfo);
     if (userInfo) {
       store.dispatch({ type: "USER_INFO", data: userInfoObj });
-      if (userInfo.pid) {
+      if (userInfoObj.pid) {
         this.getPidInfo(userInfoObj.pid)
       } else {
         this.closeRun('Main');

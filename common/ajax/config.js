@@ -1,3 +1,5 @@
+import io from 'socket.io-client';
+
 class Config {
     static get(url, success, error) {
         fetch(url)
@@ -24,6 +26,23 @@ class Config {
                     error(data);
                 }
             });
+    }
+    static uPost(url, body, success, error) {
+        fetch(url, {
+            method: "post", body
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.code == 1) {
+                    success()
+                } else {
+                    error(data);
+                }
+            });
+    }
+    static connetBySocket(url) {
+        const socket = io(url);
+        return socket
     }
 }
 
