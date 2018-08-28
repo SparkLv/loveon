@@ -55,6 +55,13 @@ export const info = StyleSheet.create({
         left: 10,
         top: 13
     },
+    chatText: {
+        color: '#000',
+        marginLeft: 10,
+        marginRight: 10,
+        padding: 8,
+        maxWidth: 200
+    },
     inputBox: {
         width: '100%',
         flexDirection: 'row',

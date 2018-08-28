@@ -13,17 +13,8 @@ import NowWeatherHead from "./components/nowWeatherHead";
 import AddPartner from './components/addPartner'
 
 import { NotificationsAndroid } from 'react-native-notifications';
-import BackgroundTask from 'react-native-background-task'
 
-BackgroundTask.define(() => {
-  console.log('back')
-  setInterval(() => {
-    NotificationsAndroid.localNotification({
-      title: 'fsdafsda',
-      body: 'faslfjas;jf;'
-    });
-  }, 4000)
-})
+import ListenMsg from '../../common/listenMsg'
 
 export default class Home extends Component {
   static navigationOptions = ({ navigation }) => {
@@ -47,7 +38,9 @@ export default class Home extends Component {
     };
   }
   componentDidMount() {
+    ListenMsg.sc();
     // BackgroundTask.schedule()
+    ListenMsg.init();
     this.getUserInfo();
     this.getLoc();
     this.getNews();

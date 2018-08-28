@@ -40,9 +40,17 @@ class Config {
                 }
             });
     }
-    static connetBySocket(url) {
+    static connetBySocket(url, success, error) {
         const socket = io(url);
-        return socket
+        socket.on("connect", () => {
+            success(socket);
+        })
+        socket.on('connect_error', (err) => {
+            error(err);
+        })
+        socket.on('connect_timeout', (timeout) => {
+            error(timeout);
+        })
     }
 }
 

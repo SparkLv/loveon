@@ -4,6 +4,8 @@ import { StyleSheet, Text, TouchableOpacity, ImageBackground, AsyncStorage, AppS
 
 import store from '../store';
 
+import Ajax from '../common/ajax'
+
 export default class Cover extends Component {
   constructor() {
     super();
@@ -20,7 +22,7 @@ export default class Cover extends Component {
     if (userInfo) {
       store.dispatch({ type: "USER_INFO", data: userInfoObj });
       if (userInfoObj.pid) {
-        this.getPidInfo(userInfoObj.pid)
+        this.getPidInfo(userInfoObj.pid, userInfoObj.id)
       } else {
         this.closeRun('Main');
       }
@@ -28,14 +30,14 @@ export default class Cover extends Component {
       this.closeRun('Login')
     }
   }
-  getPidInfo(pid) {
-    const url = `http://10.0.52.22:2421/loveon/user/getById/${pid}`;
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        store.dispatch({ type: "PUSER_INFO", data });
-        this.closeRun('Main')
-      });
+  getPidInfo(pid, id) {
+    Ajax.getUserInfoById(pid, (data) => {
+      store.dispatch({ type: "PUSER_INFO", data });
+      Ajax.socketCon(id, pid, (socket) => {
+        store.dispatch({ type: "SET_SOCKET", data: socket });
+        this.closeRun('Main');
+      }, () => { alert('网络链接失败，请重试') })
+    }, () => { })
   }
   reduceTime() {
     if (this.state.time === 1) {

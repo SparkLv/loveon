@@ -12,9 +12,9 @@ class Ajax extends Config {
         const url = ip + '/loveon/getUpdate';
         this.post(url, body, success, error);
     }
-    static socketCon(id, pid) {
+    static socketCon(id, pid, success, error) {
         const url = socketIp + `?id=${id}&pid=${pid}`;
-        return this.connetBySocket(url);
+        return this.connetBySocket(url, success, error);
     }
     static uploadImg(body, success, error) {
         const url = ip + `http://10.0.52.22:2421/loveon/upload`;
@@ -23,6 +23,10 @@ class Ajax extends Config {
     static addFav(body, success, error) {
         const url = ip + `/loveon/add`;
         this.post(url, body, success, error);
+    }
+    static getUserInfoById(id, success, error) {
+        const url = ip + `/loveon/user/getById/${id}`;
+        this.get(url, success, error);
     }
 }
 export default Ajax
