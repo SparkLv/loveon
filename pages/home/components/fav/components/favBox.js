@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { View, Text, Image, TouchableWithoutFeedback } from "react-native";
-import { FavBox as styles } from '../../../common/styles'
+import { FavBox as styles } from '../../../../../common/styles'
 
 export default class FavBox extends Component {
     render() {

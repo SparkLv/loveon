@@ -10,6 +10,8 @@
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-react-native": "^4.0.0",
+    "jcore-react-native": "^1.2.9",
+    "jpush-react-native": "^2.2.9",
     "md5": "^2.2.1",
     "moment": "^2.22.2",
     "react": "16.4.1",

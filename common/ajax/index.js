@@ -3,7 +3,23 @@ import Config from './config';
 const ip = 'http://10.0.52.22:2421';
 const socketIp = 'ws://10.0.52.22:2422';
 
+// const ip = 'http://118.24.6.102:2421';
+// const socketIp = 'ws://118.24.6.102:2422';
+
+
 class Ajax extends Config {
+    static register(body, success, error) {
+        const url = ip + `/loveon/user/register`;
+        this.post(url, body, success, error)
+    }
+    static login(body, success, error) {
+        const url = ip + `/loveon/user/login`;
+        this.post(url, body, success, error);
+    }
+    static connectP(body, success, error) {
+        const url = ip + `/loveon/user/connect`;
+        this.post(url, body, success, error);
+    }
     static getInitTrends(id, pid, success, error) {
         const url = ip + `/loveon/getInit/${id}/${pid}`;
         this.get(url, success, error);
@@ -17,7 +33,7 @@ class Ajax extends Config {
         return this.connetBySocket(url, success, error);
     }
     static uploadImg(body, success, error) {
-        const url = ip + `http://10.0.52.22:2421/loveon/upload`;
+        const url = ip + `/loveon/upload`;
         this.uPost(url, body, success, error);
     }
     static addFav(body, success, error) {

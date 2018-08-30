@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { View, Text, Image, TextInput, TouchableOpacity } from "react-native";
-import { info as styles } from '../../../common/styles'
+import { info as styles } from '../../../../../common/styles'
 
 export default class Info extends Component {
     constructor() {

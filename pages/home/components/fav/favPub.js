@@ -6,7 +6,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import Toast from 'react-native-root-toast';
 import ImageViewer from 'react-native-image-zoom-viewer';
 
-import Ajax from '../../common/ajax'
+import Ajax from '../../../../common/ajax'
 
 export default class favPub extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -231,7 +231,7 @@ export default class favPub extends Component {
                 </View>
                 <View style={{ flexDirection: 'row', bottom: 0, backgroundColor: '#fff', justifyContent: "flex-start", position: "absolute", width: '100%' }}>
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <TouchableWithoutFeedback onPress={() => { this.props.navigation.navigate('FavLocation', { change: this.changeLocText.bind(this) }) }}>
+                        <TouchableWithoutFeedback onPress={() => { this.props.navigation.navigate('favLocation', { change: this.changeLocText.bind(this) }) }}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
                                 <Icon name="location-arrow" color={this.state.locText ? '#1b82d1' : "#333"} size={30} />
                                 <Text style={{ marginLeft: 3, marginRight: 3 }}>{this.state.locText || '选择位置'}</Text>

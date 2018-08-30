@@ -2,8 +2,7 @@ import React, { Component } from "react";
 import { View, Text, Image, FlatList, Dimensions } from "react-native";
 import Moment from 'moment';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { info as styles } from '../../../common/styles'
-import store from '../../../store'
+import { info as styles } from '../../../../../common/styles'
 
 export default class Chat extends Component {
     constructor() {
@@ -14,22 +13,27 @@ export default class Chat extends Component {
             text: ''
         }
         this.canDrop = true
-        this.socket = store.getState().socket;
     }
     componentDidMount() {
-        this.socketInit();
-        var { height } = Dimensions.get('window');
-        this.setState({
-            height
-        })
+        this.init();
     }
     componentWillReceiveProps(next) {
         this.setState({
             text: next.text
         })
+        if (next.socket && !this.socket) {
+            this.socket = next.socket;
+            this.init();
+        }
     }
-    componentWillUnmount() {
-        this.socket.disconnect();
+    init() {
+        if (this.socket) {
+            this.socketInit();
+        }
+        var { height } = Dimensions.get('window');
+        this.setState({
+            height
+        })
     }
     socketInit() {
         this.socket.emit('initMessage');
@@ -57,7 +61,7 @@ export default class Chat extends Component {
         })
     }
     getHistory() {
-        if (this.canDrop) {
+        if (this.canDrop && this.socket) {
             this.canDrop = false;
             this.socket.emit('getHistory', { id: this.props.userInfo.id, finId: this.state.mes[this.state.mes.length - 1].id });
         }

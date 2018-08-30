@@ -3,19 +3,21 @@ package com.loveon;
 import android.app.Application;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactApplication;
-import com.pilloxa.backgroundjob.BackgroundJobPackage;
+import com.jamesisaac.rnbackgroundtask.BackgroundTaskPackage;
 import com.reactnative.ivpusic.imagepicker.PickerPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-
+import cn.jpush.reactnativejpush.JPushPackage;
 import com.wix.reactnativenotifications.RNNotificationsPackage;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
+  private boolean SHUTDOWN_TOAST = true;
+  private boolean SHUTDOWN_LOG = true;
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -27,10 +29,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new BackgroundJobPackage(),
+            new BackgroundTaskPackage(),
             new PickerPackage(),
             new VectorIconsPackage(),
-             new RNNotificationsPackage(MainApplication.this)
+             new RNNotificationsPackage(MainApplication.this),
+             new JPushPackage(SHUTDOWN_TOAST, SHUTDOWN_LOG)
       );
     }
 
@@ -49,5 +52,6 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+    BackgroundTaskPackage.useContext(this);
   }
 }

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Button, Image, AsyncStorage, FlatList, Keyboard, Dimensions, TextInput, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
-import Icon from 'react-native-vector-icons/FontAwesome';
+import {View, Text ,FlatList,TextInput, TouchableWithoutFeedback} from "react-native";
 import Modalbox from 'react-native-modalbox';
 
 export default class favLocation extends Component {

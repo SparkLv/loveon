@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { View, Text, FlatList, Dimensions, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
-import store from '../../store'
-import Ajax from '../../common/ajax'
+import store from '../../../../store'
+import Ajax from '../../../../common/ajax'
 import FavBox from './components/favBox'
 import ImgDetail from './components/imgDetail'
 
@@ -14,6 +14,7 @@ export default class Fav extends Component {
       headerTitleStyle: {
         fontSize: 16
       },
+      tabBarVisible: false,
       headerRight: navigation.getParam('pid') ? (
         <TouchableOpacity onPress={() => { navigation.navigate('favPub') }} style={{ marginRight: 5 }} >
           <Icon name="plus" size={30} color="#fff" />
