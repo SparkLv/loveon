@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { View, Text, FlatList, Dimensions, TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon2 from 'react-native-vector-icons/MaterialIcons';
-import store from '../../store'
-import Ajax from '../../common/ajax'
+import store from '../../../../store'
+import Ajax from '../../../../common/ajax'
 import FavBox from './components/favBox'
 import ImgDetail from './components/imgDetail'
 
@@ -14,6 +14,7 @@ export default class Fav extends Component {
       headerTitleStyle: {
         fontSize: 16
       },
+      tabBarVisible: false,
       headerRight: navigation.getParam('pid') ? (
         <TouchableOpacity onPress={() => { navigation.navigate('favPub') }} style={{ marginRight: 5 }} >
           <Icon name="plus" size={30} color="#fff" />
@@ -85,7 +86,7 @@ export default class Fav extends Component {
     return this.state.userInfo.pid ? (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "flex-start" }}>
         <FlatList
-          style={{ width: '95%', marginBottom: 10 }}
+          style={{ width: '100%', marginBottom: 10, paddingLeft: 10, paddingRight: 10 }}
           data={this.state.trends}
           keyExtractor={this._keyExtractor}
           extraData={this.state}

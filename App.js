@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import Nav from "./pages/nav";
+import Route from './pages/route';
 
 export default class App extends Component {
   render() {
-    return <Nav />;
+    return <Route />;
   }
 }

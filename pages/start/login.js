@@ -1,7 +1,11 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator, AsyncStorage } from "react-native";
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, ActivityIndicator, AsyncStorage } from "react-native";
 import tcomb from 'tcomb-form-native';
 import Toast from 'react-native-root-toast';
+import Ajax from '../../common/ajax'
+import JPush from 'jpush-react-native';
+import { Login as styles } from '../../common/styles'
+import SaveInfo from '../../common/saveInfo';
 
 const Form = tcomb.form.Form;
 
@@ -31,6 +35,11 @@ var options = {
 };
 
 export default class Login extends Component {
+    static navigationOptions = ({ navigation }) => {
+        return {
+          header: null
+        };
+      };
     constructor() {
         super();
         this.state = {
@@ -44,31 +53,30 @@ export default class Login extends Component {
         })
     }
     login() {
-        var value = this.refs.form.getValue();
+        let value = JSON.parse(JSON.stringify(this.state.loginValue));
         this.setState({
             loading: true
         })
-        fetch('http://10.0.52.22:2421/loveon/user/login', {
-            method: "post", headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(this.state.loginValue)
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.code == '1') {
-                    this.setUserInfo(data.data);
-                } else {
-                    this.toast(data.message);
-                }
+        JPush.getRegistrationID(registrationId => {
+            value.pushId = registrationId;
+            Ajax.login(value, (data) => {
+                this.setUserInfo(data);
                 this.setState({
                     loading: false
                 })
-            });
+            }, (data) => {
+                this.toast(data.message);
+                this.setState({
+                    loading: false
+                })
+            })
+        });
     }
     async setUserInfo(info) {
         await AsyncStorage.setItem('userInfo', JSON.stringify(info));
-        this.props.navigation.replace('Main');
+        SaveInfo.save(info, () => {
+            this.props.navigation.replace('main');
+        })
     }
     esInput() {
         return !(this.state.loginValue.username && this.state.loginValue.password)
@@ -84,7 +92,7 @@ export default class Login extends Component {
     }
     render() {
         return (
-            <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: '#fff' }}>
+            <View style={styles.outerBox}>
                 <View style={styles.loginForm}>
                     <Form
                         ref="form"
@@ -103,7 +111,7 @@ export default class Login extends Component {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.registerBlock}>
-                    <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('Register')}>
+                    <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('register')}>
                         <View style={{ flexDirection: 'row', height: 40, justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{ color: '#949494' }}>还没有账号?</Text>
                             <Text style={{ color: '#000', marginLeft: 10 }}>注册一个</Text>
@@ -114,43 +122,3 @@ export default class Login extends Component {
         );
     }
 }
-
-const styles = StyleSheet.create({
-    loginForm: {
-        width: '90%'
-    },
-    loginBtn: {
-        backgroundColor: '#3897f3',
-        borderWidth: 1,
-        borderColor: '#3897f3',
-        borderRadius: 4,
-        height: 40
-
-    },
-    loginDisBtn: {
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#c6ddeb',
-        borderRadius: 4,
-        height: 40
-
-    },
-    loginBtnText: {
-        color: '#fff',
-        textAlign: 'center',
-        lineHeight: 40
-    },
-    loginDisBtnText: {
-        color: '#c6ddeb',
-        textAlign: 'center',
-        lineHeight: 40
-    },
-    registerBlock: {
-        position: 'absolute',
-        bottom: 0,
-        width: '100%',
-        height: 40,
-        borderTopWidth: 1,
-        borderTopColor: '#dbdbdb'
-    }
-})

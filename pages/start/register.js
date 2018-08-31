@@ -1,11 +1,13 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Image, ActivityIndicator } from "react-native";
 import Modalbox from 'react-native-modalbox';
 import tcomb from 'tcomb-form-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import AwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import ImagePicker from 'react-native-image-crop-picker';
 import Toast from 'react-native-root-toast';
+import Ajax from '../../common/ajax'
+import { Register as styles } from '../../common/styles'
 
 const Form = tcomb.form.Form;
 
@@ -51,6 +53,11 @@ var options = {
 };
 
 export default class Register extends Component {
+  static navigationOptions = ({ navigation }) => {
+    return {
+      header: null
+    };
+  };
   constructor() {
     super();
     this.state = {
@@ -73,29 +80,20 @@ export default class Register extends Component {
       this.setState({
         loadingReg: true
       })
-      fetch('http://10.0.52.22:2421/loveon/user/register', {
-        method: "post", headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(this.state.registerValue)
+      Ajax.register(this.state.registerValue, () => {
+        this.toast('注册成功，请登陆');
+        this.setState({
+          loadingReg: false
+        })
+        setTimeout(() => {
+          this.props.navigation.replace('login');
+        }, 1000)
+      }, (data) => {
+        this.toast(data.message);
+        this.setState({
+          loadingReg: false
+        })
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.code == '1') {
-            this.toast('注册成功，请登陆');
-            this.setState({
-              loadingReg: false
-            })
-            setTimeout(() => {
-              this.props.navigation.replace('Login');
-            }, 4000)
-          } else {
-            this.toast(data.message);
-            this.setState({
-              loadingReg: false
-            })
-          }
-        });
     }
   }
   esInput() {
@@ -119,7 +117,7 @@ export default class Register extends Component {
       this.uploadImg(image);
     });
   }
-  uploadImg(image) {
+  dealImg(image) {
     const pathArr = image.path.split('/')
     const name = pathArr[pathArr.length - 1].split('.')[0] + Math.floor(Math.random());
     var photo = {
@@ -130,27 +128,29 @@ export default class Register extends Component {
     };
     var body = new FormData();
     body.append('file', photo);
+    return {
+      name, body
+    }
+  }
+  uploadImg(image) {
+    const { name, body } = this.dealImg(image);
     this.setState({
       loadingImg: true
     })
-    fetch('http://10.0.52.22:2421/loveon/upload', { method: "post", body })
-      .then(res => res.json())
-      .then(data => {
-        this.hideSelPickerModal();
-        const val = JSON.parse(JSON.stringify(this.state.registerValue));
-        val.headImg = `http://loveoncdn.sparklv.cn/${name}`;
-        if (data.code == '1') {
-          this.setState({
-            registerValue: val,
-            loadingImg: false
-          })
-        } else {
-          this.toast('头像上传失败请重新上传');
-          this.setState({
-            loadingImg: false
-          })
-        }
-      });
+    this.hideSelPickerModal();
+    const val = JSON.parse(JSON.stringify(this.state.registerValue));
+    val.headImg = `http://loveoncdn.sparklv.cn/${name}`;
+    Ajax.uploadImg(body, () => {
+      this.setState({
+        registerValue: val,
+        loadingImg: false
+      })
+    }, () => {
+      this.toast('头像上传失败请重新上传');
+      this.setState({
+        loadingImg: false
+      })
+    })
   }
   showSelPickerModal() {
     this.setState({
@@ -173,7 +173,7 @@ export default class Register extends Component {
   }
   render() {
     return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: '#fff' }}>
+      <View style={styles.outerBox}>
         <View style={styles.headBox}>
           <TouchableWithoutFeedback
             onPress={this.showSelPickerModal.bind(this)}
@@ -181,7 +181,7 @@ export default class Register extends Component {
 
             {
               this.state.registerValue.headImg ?
-                <Image source={{ uri: this.state.registerValue.headImg }} style={{ width: 80, height: 80, borderRadius: 40 }} /> :
+                <Image source={{ uri: this.state.registerValue.headImg }} style={styles.upImg} /> :
                 (<View>
                   <Icon name="account-circle" size={80} color='#333' />
                   <Text>点击上传头像</Text>
@@ -204,7 +204,7 @@ export default class Register extends Component {
           </TouchableOpacity>
         </View>
         <View style={styles.registerBlock}>
-          <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('Login')}>
+          <TouchableWithoutFeedback onPress={() => this.props.navigation.navigate('login')}>
             <View style={{ flexDirection: 'row', height: 40, justifyContent: 'center', alignItems: 'center' }}>
               <Text style={{ color: '#949494' }}>已有账号?</Text>
               <Text style={{ color: '#000', marginLeft: 10 }}>请登陆</Text>
@@ -240,51 +240,3 @@ export default class Register extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  headBox: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    width: 150,
-    height: 150,
-  },
-  registerForm: {
-    width: '90%'
-  },
-  registerBtn: {
-    backgroundColor: '#3897f3',
-    borderWidth: 1,
-    borderColor: '#3897f3',
-    borderRadius: 4,
-    height: 40
-
-  },
-  registerDisBtn: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#c6ddeb',
-    borderRadius: 4,
-    height: 40
-
-  },
-  registerBtnText: {
-    color: '#fff',
-    textAlign: 'center',
-    lineHeight: 40
-  },
-  registerDisBtnText: {
-    color: '#c6ddeb',
-    textAlign: 'center',
-    lineHeight: 40
-  },
-  registerBlock: {
-    backgroundColor: '#fff',
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: 40,
-    borderTopWidth: 1,
-    borderTopColor: '#dbdbdb'
-  }
-})
