@@ -44,5 +44,9 @@ class Ajax extends Config {
         const url = ip + `/loveon/user/getById/${id}`;
         this.get(url, success, error);
     }
+    static getMovies(success, error) {
+        const url = ip + `/loveon/get/movie`;
+        this.get(url, success, error);
+    }
 }
 export default Ajax

@@ -9,6 +9,7 @@ import Fav from '../home/components/fav';
 import FavPub from '../home/components/fav/favPub';
 import FavLocation from '../home/components/fav/location';
 import Message from '../home/components/message';
+import FullScreenMovie from '../home/components/movie/fullScreenMovie';
 
 export default createStackNavigator(
   {
@@ -25,7 +26,8 @@ export default createStackNavigator(
     fav: Fav,
     favPub: FavPub,
     favLocation: FavLocation,
-    message: Message
+    message: Message,
+    fullScreenMovie: FullScreenMovie
   },
   {
     navigationOptions: {

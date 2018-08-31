@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, StatusBar } from "react-native";
+import { View, StatusBar, Button } from "react-native";
 import md5 from "md5";
 import JPush from 'jpush-react-native';
 import store from '../../store'
@@ -9,6 +9,8 @@ import AddPartner from './components/addPartner'
 import MessageEnter from './components/messageEnter'
 
 import AddModal from './components/addModal'
+
+import MenuBar from './components/MenuBar'
 
 import Ajax from "../../common/ajax";
 
@@ -61,6 +63,7 @@ export default class Home extends Component {
     return (
       <View style={{ flex: 1 }}>
         <StatusBar backgroundColor={this.props.navigation.state.routeName == 'cover' ? "#fff" : "#1b82d1"} />
+        <MenuBar navigation={this.props.navigation} />
         <AddModal toLogin={() => {
           const navigateAction = NavigationActions.navigate({
             routeName: 'login',
